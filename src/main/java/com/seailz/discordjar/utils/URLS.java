@@ -65,6 +65,20 @@ public final class URLS {
                  * Creates a channel
                  */
                 public static final String CREATE = "/guilds/{guild.id}/channels";
+                /**
+                 * Creates a webhook in a channel
+                 * @param guild.id The id of the guild
+                 * @param channel.id The id of the channel
+                 */
+                public static final String CREATE_WEBHOOK = "/channels/{channel.id}/webhooks";
+                /**
+                 * Executes a webhook
+                 * @param guild.id The id of the guild
+                 * @param channel.id The id of the channel
+                 * @param webhook.id The id of the webhook
+                 * @param webhook.token The token of the webhook
+                 */
+                public static final String EXECUTE_WEBHOOK = "/webhooks/{webhook.id}/{webhook.token}";
             }
         }
 
@@ -191,6 +205,16 @@ public final class URLS {
                  * @param id The id of the guild
                  */
                 public static String GET_GUILD_CHANNELS = "/guilds/{guild.id}/channels";
+                /**
+                 * Returns a list of {@link com.seailz.discordjar.model.webhook.Webhook} objects
+                 * @param channel.id The id of the channel
+                 */
+                public static String GET_CHANNEL_WEBHOOKS = "/channels/{channel.id}/webhooks";
+                /**
+                 * Returns a {@link com.seailz.discordjar.model.webhook.Webhook} with the given id
+                 * @param webhook.id The id of the webhook
+                 */
+                public static String GET_CHANNEL_WEBHOOK = "/webhooks/{webhook.id}/{webhook.token}";
             }
 
             public static class EMOJIS {
@@ -337,6 +361,12 @@ public final class URLS {
         }
 
         public static class CHANNEL {
+            /**
+             * Deletes a webhook.
+             * @param webhook.id The id of the webhook
+             * @param webhook.token The token of the webhook
+             */
+            public static final String DELETE_WEBHOOK = "/webhooks/{webhook.id}/{webhook.token}";
             public static class PINS {
                 public static String UNPIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
             }
