@@ -57,38 +57,30 @@ public record IncomingWebhook(
         );
     }
 
-    public void sendMessage(String m) {
-        try {
-            DiscordResponse response = new DiscordRequest(
-                    new JSONObject()
-                            .put("content", m),
-                    new HashMap<>(),
-                    URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
-                    discordJar,
-                    URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
-                    RequestMethod.POST
-            ).invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
+    public void sendMessage(String m) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject()
+                        .put("content", m),
+                new HashMap<>(),
+                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
+                discordJar,
+                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
+                RequestMethod.POST
+        ).invoke();
     }
 
-    public void sendEmbeds(Embed... embeds) {
+    public void sendEmbeds(Embed... embeds) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         if (embeds.length > 10) {
             throw new IllegalArgumentException("There can be no greater than 10 embeds!");
         }
-        try {
-            DiscordResponse response = new DiscordRequest(
-                    new JSONObject()
-                            .put("embeds", new JSONArray(embeds)),
-                    new HashMap<>(),
-                    URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
-                    discordJar,
-                    URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
-                    RequestMethod.POST
-            ).invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject()
+                        .put("embeds", new JSONArray(embeds)),
+                new HashMap<>(),
+                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
+                discordJar,
+                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
+                RequestMethod.POST
+        ).invoke();
     }
 }

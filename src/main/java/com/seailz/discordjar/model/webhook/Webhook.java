@@ -68,18 +68,14 @@ public record Webhook(
         return new IncomingWebhook(name, type, channelId, token, avatar, guildId, id, applicationId, user, discordJar);
     }
 
-    public void delete() {
-        try {
-            DiscordResponse response = new DiscordRequest(
-                    new JSONObject(),
-                    new HashMap<>(),
-                    URLS.DELETE.CHANNEL.DELETE_WEBHOOK.replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
-                    discordJar,
-                    URLS.DELETE.CHANNEL.DELETE_WEBHOOK,
-                    RequestMethod.DELETE
-            ).invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
-        }
+    public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.CHANNEL.DELETE_WEBHOOK.replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
+                discordJar,
+                URLS.DELETE.CHANNEL.DELETE_WEBHOOK,
+                RequestMethod.DELETE
+        ).invoke();
     }
 }
