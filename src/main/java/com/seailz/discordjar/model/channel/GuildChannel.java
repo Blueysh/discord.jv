@@ -126,7 +126,7 @@ public interface GuildChannel extends Channel {
      * @return The created Webhook.
      * @implNote Avatars are not implemented yet.
      */
-    default IncomingWebhook createIncomingWebhook(String name) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    default IncomingWebhook createWebhook(String name) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject()
                         .put("name", name),
