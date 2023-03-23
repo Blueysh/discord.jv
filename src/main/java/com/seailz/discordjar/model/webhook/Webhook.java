@@ -11,9 +11,24 @@ import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import java.util.HashMap;
 
+/**
+ * Represents a Webhook for a Channel.
+ * @param id The id of the Webhook.
+ * @param type The type of the Webhook.
+ * @param guildId The id of the Guild the Webhook is in.
+ * @param channelId The id of the Channel the Webhook is in.
+ * @param user The user object tied to the Webhook.
+ * @param name The name of the Webhook.
+ * @param avatar The avatar of the Webhook.
+ * @param token The token of the Webhook.
+ * @param applicationId The application id of the Webhook.
+ * @param sourceGuild The source Guild of the Webhook.
+ * @param sourceChannel The source Channel of the Webhook.
+ * @param url The URL of the Webhook.
+ * @param discordJar A discord.jar instance used internally.
+ */
 public record Webhook(
         Snowflake id,
         int type,
@@ -64,10 +79,17 @@ public record Webhook(
         );
     }
 
+    /**
+     * @return This Webhook as an {@link com.seailz.discordjar.model.webhook.IncomingWebhook}.
+     */
     public IncomingWebhook asIncomingWebhook() {
         return new IncomingWebhook(name, type, channelId, token, avatar, guildId, id, applicationId, user, discordJar);
     }
 
+    /**
+     * Deletes this Webhook.
+     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
+     */
     public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(),

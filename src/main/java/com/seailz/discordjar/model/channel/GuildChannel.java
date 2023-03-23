@@ -124,8 +124,10 @@ public interface GuildChannel extends Channel {
      *
      * @param name The name of the Webhook.
      * @return The created Webhook.
-     * @implNote Avatars are not implemented yet.
+     * @implNote Avatars are not yet implemented in discord.jar.
+     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
+    // FIXME: 3/23/23 Implement avatar data
     default IncomingWebhook createWebhook(String name) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject()
@@ -139,6 +141,13 @@ public interface GuildChannel extends Channel {
         return IncomingWebhook.decompile(response.body(), discordJv());
     }
 
+    /**
+     * Gets a Webhook a channel has in effect.
+     * @param id The id of the Webhook.
+     * @param token The token of the Webhook.
+     * @return A {@link com.seailz.discordjar.model.webhook.Webhook} object.
+     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
+     */
     default Webhook getWebhookById(long id, String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = null;
         response = new DiscordRequest(
@@ -153,6 +162,13 @@ public interface GuildChannel extends Channel {
 
     }
 
+    /**
+     * Gets a Webhook a channel has in effect.
+     * @param id The id of the Webhook.
+     * @param token The token of the Webhook.
+     * @return A {@link com.seailz.discordjar.model.webhook.Webhook} object.
+     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
+     */
     default Webhook getWebhookById(String id, String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = null;
         response = new DiscordRequest(
@@ -166,6 +182,11 @@ public interface GuildChannel extends Channel {
         return Webhook.decompile(response.body(), discordJv());
     }
 
+    /**
+     * Gets the Webhooks that the channel has in effect.
+     * @return A {@link java.util.List} of {@link com.seailz.discordjar.model.webhook.Webhook} objects.
+     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
+     */
     default List<Webhook> getWebhooks() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(),
