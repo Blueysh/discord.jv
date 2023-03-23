@@ -3,19 +3,16 @@ package com.seailz.discordjar.model.webhook;
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.embed.Embed;
-import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
-import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Represents an Incoming Webhook.
@@ -74,13 +71,13 @@ public record IncomingWebhook(
 
     /**
      * Sends a message as the Webhook.
-     * @param m Message content to send.
+     * @param messageContent Message content to send.
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void sendMessage(String m) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void sendMessage(String messageContent) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject()
-                        .put("content", m),
+                        .put("content", messageContent),
                 new HashMap<>(),
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
                 discordJar,
@@ -91,14 +88,14 @@ public record IncomingWebhook(
 
     /**
      * Sends a message as the Webhook.
-     * @param m Message content to send.
+     * @param messageContent Message content to send.
      * @param usernameOverride A username override to use when sending this message. The Webhook remains unaffected.
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void sendMessage(String m, String usernameOverride) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void sendMessage(String messageContent, String usernameOverride) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject()
-                        .put("content", m)
+                        .put("content", messageContent)
                         .put("username", usernameOverride),
                 new HashMap<>(),
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
@@ -148,13 +145,13 @@ public record IncomingWebhook(
 
     /**
      * Sends a message as the Webhook.
-     * @param m The Message object to send.
+     * @param message The Message object to send.
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void send(Message m) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void send(Message message) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject()
-                        .put("content", m.content()),
+                        .put("content", message.content()),
                 new HashMap<>(),
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
                 discordJar,
@@ -165,16 +162,16 @@ public record IncomingWebhook(
 
     /**
      * Sends a message as the Webhook.
-     * @param m The Message object to send.
+     * @param message The Message object to send.
      * @param usernameOverride A username override to use when sending the message. The Webhook remains unaffected.
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void send(Message m, String usernameOverride) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void send(Message message, String usernameOverride) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         new DiscordRequest(
                 new JSONObject()
-                        .put("content", m.content())
-                        .put("embeds", m.embeds())
-                        .put("attachments", m.attachments())
+                        .put("content", message.content())
+                        .put("embeds", message.embeds())
+                        .put("attachments", message.attachments())
                         .put("username", usernameOverride),
                 new HashMap<>(),
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
