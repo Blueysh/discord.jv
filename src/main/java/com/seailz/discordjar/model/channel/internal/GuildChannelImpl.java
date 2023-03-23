@@ -7,6 +7,7 @@ import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.model.webhook.IncomingWebhook;
 import com.seailz.discordjar.model.webhook.Webhook;
+import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
@@ -114,8 +115,10 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @return A {@link com.seailz.discordjar.model.webhook.Webhook} object.
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    Webhook getWebhookById(String id, String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    Webhook getWebhookById(@NotNull String id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = null;
+        Checker.nullOrEmpty(id, "ID string may not be empty or null.");
+        Checker.nullOrEmpty(token, "Token string may not be empty or null.");
         response = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),

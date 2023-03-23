@@ -101,4 +101,9 @@ public class Checker {
             super(message);
         }
     }
+
+    public static void nullOrEmpty(String string, String message) {
+        if (string == null) nullArgument(message);
+        if (string.equals("")) illegalArgument(message);
+    }
 }
