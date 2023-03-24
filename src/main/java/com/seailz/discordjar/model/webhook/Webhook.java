@@ -5,10 +5,12 @@ import com.seailz.discordjar.core.Compilerable;
 import com.seailz.discordjar.model.channel.Channel;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.user.User;
+import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.HashMap;
@@ -91,7 +93,23 @@ public record Webhook(
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
     public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse response = new DiscordRequest(
+        new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.DELETE.CHANNEL.DELETE_WEBHOOK_NO_TOKEN.replace("{webhook.id}", id.id()),
+                discordJar,
+                URLS.DELETE.CHANNEL.DELETE_WEBHOOK_NO_TOKEN,
+                RequestMethod.DELETE
+        ).invoke();
+    }
+
+    /**
+     * Deletes this Webhook, with token authentication.
+     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
+     */
+    public void deleteWithToken(@NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        Checker.nullOrEmpty(token, "Token may not be empty or null!");
+        new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
                 URLS.DELETE.CHANNEL.DELETE_WEBHOOK.replace("{webhook.id}", id.id()).replace("{webhook.token}", token),

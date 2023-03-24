@@ -6,6 +6,8 @@ import com.seailz.discordjar.model.channel.internal.GuildChannelImpl;
 import com.seailz.discordjar.model.channel.utils.ChannelType;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.permission.PermissionOverwrite;
+import com.seailz.discordjar.model.webhook.IncomingWebhook;
+import com.seailz.discordjar.model.webhook.Webhook;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
@@ -111,4 +113,18 @@ public interface GuildChannel extends Channel {
     default CreateChannelInviteAction createInvite() {
         return new CreateChannelInviteAction(discordJv(), id());
     }
+
+
+    // FIXME: 3/23/23 Implement avatar data
+    IncomingWebhook createWebhook(String name) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+
+    Webhook getWebhookById(long id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+
+    Webhook getWebhookById(@NotNull String id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+
+    Webhook getWebhookByIdWithToken(long id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+
+    Webhook getWebhookByIdWithToken(@NotNull String id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+
+    List<Webhook> getWebhooks() throws DiscordRequest.UnhandledDiscordAPIErrorException;
 }

@@ -74,7 +74,7 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
     // FIXME: 3/23/23 Implement avatar data
-    IncomingWebhook createWebhook(String name) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    @Override public IncomingWebhook createWebhook(String name) throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject()
                         .put("name", name),
@@ -94,18 +94,8 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @return A {@link com.seailz.discordjar.model.webhook.Webhook} object.
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    Webhook getWebhookById(long id, String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse response = null;
-        response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK.replace("{webhook.id}", String.valueOf(id)).replace("{webhook.token}", token),
-                discordJv(),
-                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK,
-                RequestMethod.GET
-        ).invoke();
-        return Webhook.decompile(response.body(), discordJv());
-
+    @Override public Webhook getWebhookByIdWithToken(long id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        return getWebhookByIdWithToken(String.valueOf(id), token);
     }
 
     /**
@@ -115,8 +105,8 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @return A {@link com.seailz.discordjar.model.webhook.Webhook} object.
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    Webhook getWebhookById(@NotNull String id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse response = null;
+    @Override public Webhook getWebhookByIdWithToken(@NotNull String id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordResponse response;
         Checker.nullOrEmpty(id, "ID string may not be empty or null.");
         Checker.nullOrEmpty(token, "Token string may not be empty or null.");
         response = new DiscordRequest(
@@ -130,12 +120,29 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
         return Webhook.decompile(response.body(), discordJv());
     }
 
+    @Override public Webhook getWebhookById(long id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        return getWebhookById(String.valueOf(id));
+    }
+
+    @Override public Webhook getWebhookById(@NotNull String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordResponse response = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK_NO_TOKEN.replace("{webhook.id}", id),
+                discordJar,
+                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK_NO_TOKEN,
+                RequestMethod.GET
+        ).invoke();
+
+        return Webhook.decompile(response.body(), discordJar);
+    }
+
     /**
      * Gets the Webhooks that the channel has in effect.
      * @return A {@link java.util.List} of {@link com.seailz.discordjar.model.webhook.Webhook} objects.
      * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    List<Webhook> getWebhooks() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    @Override public List<Webhook> getWebhooks() throws DiscordRequest.UnhandledDiscordAPIErrorException {
         DiscordResponse response = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),

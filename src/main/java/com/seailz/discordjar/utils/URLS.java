@@ -213,8 +213,15 @@ public final class URLS {
                 /**
                  * Returns a {@link com.seailz.discordjar.model.webhook.Webhook} with the given id
                  * @param webhook.id The id of the webhook
+                 * @param webhook.token The token of the webhook
                  */
                 public static String GET_CHANNEL_WEBHOOK = "/webhooks/{webhook.id}/{webhook.token}";
+
+                /**
+                 * Returns a {@link com.seailz.discordjar.model.webhook.Webhook} with the given id
+                 * @param webhook.id The id of the webhook
+                 */
+                public static String GET_CHANNEL_WEBHOOK_NO_TOKEN = "/webhooks/{webhook.id}";
             }
 
             public static class EMOJIS {
@@ -367,6 +374,11 @@ public final class URLS {
              * @param webhook.token The token of the webhook
              */
             public static final String DELETE_WEBHOOK = "/webhooks/{webhook.id}/{webhook.token}";
+            /**
+             * Deletes a webhook.
+             * @param webhook.id The id of the webhook
+             */
+            public static final String DELETE_WEBHOOK_NO_TOKEN = "/webhooks/{webhook.id}";
             public static class PINS {
                 public static String UNPIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
             }
