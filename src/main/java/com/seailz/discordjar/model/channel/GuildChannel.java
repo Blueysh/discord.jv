@@ -9,13 +9,16 @@ import com.seailz.discordjar.model.permission.PermissionOverwrite;
 import com.seailz.discordjar.model.webhook.IncomingWebhook;
 import com.seailz.discordjar.model.webhook.Webhook;
 import com.seailz.discordjar.utils.Checker;
+import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public interface GuildChannel extends Channel {
@@ -114,7 +117,6 @@ public interface GuildChannel extends Channel {
         return new CreateChannelInviteAction(discordJv(), id());
     }
 
-
     // FIXME: 3/23/23 Implement avatar data
     IncomingWebhook createWebhook(String name) throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
@@ -127,4 +129,16 @@ public interface GuildChannel extends Channel {
     Webhook getWebhookByIdWithToken(@NotNull String id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException;
 
     List<Webhook> getWebhooks() throws DiscordRequest.UnhandledDiscordAPIErrorException;
+
+    default void editChannelPermissions(PermissionOverwrite ov) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+        DiscordRequest req = new DiscordRequest(
+                ov.compile(),
+                new HashMap<>(),
+                URLS.PUT.CHANNELS.PERMISSIONS.EDIT_CHANNEL_PERMS.replace("{channel.id}", id()).replace("{overwrite.id}", ov.id()),
+                discordJv(),
+                URLS.PUT.CHANNELS.PERMISSIONS.EDIT_CHANNEL_PERMS,
+                RequestMethod.PUT
+        );
+        req.invoke();
+    }
 }
