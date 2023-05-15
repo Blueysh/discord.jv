@@ -94,7 +94,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
-            <version>3.0.5</version>
+            <version>3.0.6</version>
         </dependency>
         <!-- Used for marking methods and params -->
         <dependency>
@@ -118,12 +118,12 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.15.4</version>
+            <version>1.16.1</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>5.0.0-alpha.11</version>
+            <version>4.11.0</version>
         </dependency>
     </dependencies>
 </project>

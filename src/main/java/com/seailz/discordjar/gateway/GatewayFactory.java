@@ -31,6 +31,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,18 +62,28 @@ public class GatewayFactory extends TextWebSocketHandler {
     private boolean readyForMessages = false;
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
     private final boolean debug;
+    public UUID uuid = UUID.randomUUID();
 
-    public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException, DiscordRequest.UnhandledDiscordAPIErrorException {
+    public GatewayFactory(DiscordJar discordJar, boolean debug) throws ExecutionException, InterruptedException {
         this.discordJar = discordJar;
         this.debug = debug;
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                "/gateway",
-                discordJar,
-                "/gateway", RequestMethod.GET
-        ).invoke();
-        this.gatewayUrl = response.body().getString("url");
+
+        discordJar.setGatewayFactory(this);
+
+        DiscordResponse response = null;
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    "/gateway",
+                    discordJar,
+                    "/gateway", RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException ignored) {}
+        if (response == null || response.body() == null || !response.body().has("url")) {
+            // In case the request fails, we can attempt to use the backup gateway URL instead.
+            this.gatewayUrl = URLS.GATEWAY.BASE_URL;
+        } else this.gatewayUrl = response.body().getString("url");
         connect();
     }
 
@@ -85,10 +96,12 @@ public class GatewayFactory extends TextWebSocketHandler {
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Gateway connection established.");
         }
+        discordJar.setGatewayFactory(this);
     }
 
     public void connect() throws ExecutionException, InterruptedException {
         connect(gatewayUrl);
+
     }
 
     @Override
@@ -182,6 +195,12 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
     }
 
+
+    /**
+     * Do not use this method - it is for internal use only.
+     * @param status The status to set.
+     */
+    @Deprecated
     public void setStatus(Status status) {
         this.status = status;
     }
@@ -207,6 +226,10 @@ public class GatewayFactory extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
+        if (discordJar.getGateway() != this) {
+            logger.info("[DISCORD.JAR] Received message from a gateway that isn't the main gateway. This is usually a bug, please report it on discord.jar's GitHub with this log message. Payload: " + payload.toString());
+            return;
+        }
 
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Received message: " + payload.toString());
@@ -287,6 +310,13 @@ public class GatewayFactory extends TextWebSocketHandler {
                 this.sessionId = payload.getJSONObject("d").getString("session_id");
                 this.resumeUrl = payload.getJSONObject("d").getString("resume_gateway_url");
                 readyForMessages = true;
+
+                if (discordJar.getStatus() != null) {
+                    JSONObject json = new JSONObject();
+                    json.put("d", discordJar.getStatus().compile());
+                    json.put("op", 3);
+                    queueMessage(json);
+                }
                 break;
             case GUILD_CREATE:
                 discordJar.getGuildCache().cache(Guild.decompile(payload.getJSONObject("d"), discordJar));
@@ -315,7 +345,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         heartbeatManager = null;
         readyForMessages = false;
         // close connection
-        session.close(CloseStatus.SERVER_ERROR);
+        if (session != null) session.close(CloseStatus.SERVER_ERROR);
 
         if (debug) {
             logger.info("[DISCORD.JAR - DEBUG] Connection closed.");
