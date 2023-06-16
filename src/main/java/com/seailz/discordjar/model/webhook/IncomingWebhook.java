@@ -73,10 +73,9 @@ public record IncomingWebhook(
     /**
      * Sends a message as the Webhook.
      * @param messageContent Message content to send.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void sendMessage(String messageContent) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
+    public void sendMessage(String messageContent) {
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject()
                         .put("content", messageContent),
                 new HashMap<>(),
@@ -84,17 +83,21 @@ public record IncomingWebhook(
                 discordJar,
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
                 RequestMethod.POST
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Sends a message as the Webhook.
      * @param messageContent Message content to send.
      * @param usernameOverride A username override to use when sending this message. The Webhook remains unaffected.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void sendMessage(String messageContent, String usernameOverride) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
+    public void sendMessage(String messageContent, String usernameOverride) {
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject()
                         .put("content", messageContent)
                         .put("username", usernameOverride),
@@ -103,17 +106,21 @@ public record IncomingWebhook(
                 discordJar,
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
                 RequestMethod.POST
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Sends a list of {@link com.seailz.discordjar.model.embed.Embed} objects as the Webhook.
      * @param embeds The embeds to send.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void sendEmbeds(Embed... embeds) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void sendEmbeds(Embed... embeds) {
         Checker.check(embeds.length <= 10, "There can be no greater than 10 embeds!");
-        new DiscordRequest(
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject()
                         .put("embeds", new JSONArray(embeds)),
                 new HashMap<>(),
@@ -121,18 +128,22 @@ public record IncomingWebhook(
                 discordJar,
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
                 RequestMethod.POST
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Sends a list of {@link com.seailz.discordjar.model.embed.Embed} objects as the Webhook.
      * @param embeds The embeds to send.
      * @param usernameOverride A username override to use when sending the embeds. The Webhook remains unaffected.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void sendEmbeds(String usernameOverride, Embed... embeds) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void sendEmbeds(String usernameOverride, Embed... embeds) {
         Checker.check(embeds.length <= 10, "There can be no greater than 10 embeds!");
-        new DiscordRequest(
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject()
                         .put("embeds", new JSONArray(embeds))
                         .put("username", usernameOverride),
@@ -141,16 +152,20 @@ public record IncomingWebhook(
                 discordJar,
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
                 RequestMethod.POST
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Sends a message as the Webhook.
      * @param message The Message object to send.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void send(Message message) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
+    public void send(Message message) {
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject()
                         .put("content", message.content()),
                 new HashMap<>(),
@@ -158,17 +173,21 @@ public record IncomingWebhook(
                 discordJar,
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
                 RequestMethod.POST
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Sends a message as the Webhook.
      * @param message The Message object to send.
      * @param usernameOverride A username override to use when sending the message. The Webhook remains unaffected.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void send(Message message, String usernameOverride) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
+    public void send(Message message, String usernameOverride){
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject()
                         .put("content", message.content())
                         .put("embeds", message.embeds())
@@ -179,37 +198,50 @@ public record IncomingWebhook(
                 discordJar,
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
                 RequestMethod.POST
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Deletes this Webhook.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
+    public void delete() {
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
                 URLS.DELETE.CHANNEL.DELETE_WEBHOOK_NO_TOKEN.replace("{webhook.id}", id.id()),
                 discordJar,
                 URLS.DELETE.CHANNEL.DELETE_WEBHOOK_NO_TOKEN,
                 RequestMethod.DELETE
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Deletes this Webhook, with token authentication.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void deleteWithToken(@NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void deleteWithToken(@NotNull String token) {
         Checker.nullOrEmpty(token, "Token may not be empty or null!");
-        new DiscordRequest(
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
                 URLS.DELETE.CHANNEL.DELETE_WEBHOOK.replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
                 discordJar,
                 URLS.DELETE.CHANNEL.DELETE_WEBHOOK,
                 RequestMethod.DELETE
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 }

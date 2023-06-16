@@ -89,33 +89,105 @@ public record Webhook(
     }
 
     /**
-     * Deletes this Webhook.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
+     * Sets the name of the Webhook.
+     * @param name The new name of the Webhook.
      */
-    public void delete() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
+    public void setName(String name) {
+        DiscordRequest request = new DiscordRequest(
+                new JSONObject(),
+                new HashMap<>(),
+                URLS.PATCH.WEBHOOK.MODIFY_NOTOKEN.replace("{webhook.id}", id.toString()),
+                discordJar,
+                URLS.PATCH.WEBHOOK.MODIFY_NOTOKEN,
+                RequestMethod.PATCH
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+    }
+
+    /**
+     * Sets the name of the Webhook.
+     * @param name The new name of the Webhook.
+     * @param token The token of the Webhook.
+     */
+    public void setNameWithToken(String name, @NotNull String token) {
+        Checker.nullOrEmpty(token, "Token may not be empty or null!");
+        DiscordRequest request = new DiscordRequest(
+                new JSONObject()
+                        .put("name", name),
+                new HashMap<>(),
+                URLS.PATCH.WEBHOOK.MODIFY.replace("{webhook.id}", id.toString()).replace("{webhook.token}", token),
+                discordJar,
+                URLS.PATCH.WEBHOOK.MODIFY,
+                RequestMethod.PATCH
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+    }
+
+    /**
+     * Moves this Webhook to another {@link Channel}.
+     * @param channelId The {@link Snowflake} of the new {@link Channel} to move to.
+     */
+    public void move(Snowflake channelId) {
+        DiscordRequest request = new DiscordRequest(
+                new JSONObject()
+                        .put("channel_id", channelId),
+                new HashMap<>(),
+                URLS.PATCH.WEBHOOK.MODIFY.replace("{webhook.id}", id.toString()),
+                discordJar,
+                URLS.PATCH.WEBHOOK.MODIFY,
+                RequestMethod.PATCH
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+    }
+
+    /**
+     * Deletes this Webhook.
+     */
+    public void delete() {
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
                 URLS.DELETE.CHANNEL.DELETE_WEBHOOK_NO_TOKEN.replace("{webhook.id}", id.id()),
                 discordJar,
                 URLS.DELETE.CHANNEL.DELETE_WEBHOOK_NO_TOKEN,
                 RequestMethod.DELETE
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Deletes this Webhook, with token authentication.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    public void deleteWithToken(@NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public void deleteWithToken(@NotNull String token) {
         Checker.nullOrEmpty(token, "Token may not be empty or null!");
-        new DiscordRequest(
+        DiscordRequest request = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
                 URLS.DELETE.CHANNEL.DELETE_WEBHOOK.replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
                 discordJar,
                 URLS.DELETE.CHANNEL.DELETE_WEBHOOK,
                 RequestMethod.DELETE
-        ).invoke();
+        );
+        try {
+            request.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 }

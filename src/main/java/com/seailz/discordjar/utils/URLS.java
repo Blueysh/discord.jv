@@ -473,6 +473,11 @@ public final class URLS {
     }
 
     public static class PATCH {
+        public static class WEBHOOK {
+            public static final String MODIFY_NOTOKEN = "/webhooks/{webhook.id}";
+            public static final String MODIFY = "/webhooks/{webhook.id}/{webhook.token}";
+        }
+
         public static class GUILD {
             public static class MEMBER {
                 /**
