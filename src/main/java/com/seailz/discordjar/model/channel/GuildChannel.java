@@ -116,19 +116,19 @@ public interface GuildChannel extends Channel {
     }
 
     // FIXME: 3/23/23 Implement avatar data
-    IncomingWebhook createWebhook(String name) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    IncomingWebhook createWebhook(String name);
 
-    Webhook getWebhookById(long id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    Webhook getWebhookById(long id);
 
-    Webhook getWebhookById(@NotNull String id) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    Webhook getWebhookById(@NotNull String id);
 
-    Webhook getWebhookByIdWithToken(long id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    Webhook getWebhookByIdWithToken(long id, @NotNull String token);
 
-    Webhook getWebhookByIdWithToken(@NotNull String id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    Webhook getWebhookByIdWithToken(@NotNull String id, @NotNull String token);
 
-    List<Webhook> getWebhooks() throws DiscordRequest.UnhandledDiscordAPIErrorException;
+    List<Webhook> getWebhooks();
 
-    default void editChannelPermissions(PermissionOverwrite ov) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    default void editChannelPermissions(PermissionOverwrite ov){
         DiscordRequest req = new DiscordRequest(
                 ov.compile(),
                 new HashMap<>(),

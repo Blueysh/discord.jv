@@ -71,20 +71,23 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @param name The name of the Webhook.
      * @return The created Webhook.
      * @implNote Avatars are not yet implemented in discord.jar.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
     // FIXME: 3/23/23 Implement avatar data
-    @Override public IncomingWebhook createWebhook(String name) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject()
-                        .put("name", name),
-                new HashMap<>(),
-                URLS.POST.GUILDS.CHANNELS.CREATE_WEBHOOK.replace("{guild.id}", guild().id()).replace("{channel.id}", id()),
-                discordJv(),
-                URLS.POST.GUILDS.CHANNELS.CREATE_WEBHOOK,
-                RequestMethod.POST
-        ).invoke();
-        return IncomingWebhook.decompile(response.body(), discordJv());
+    @Override public IncomingWebhook createWebhook(String name) {
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject()
+                            .put("name", name),
+                    new HashMap<>(),
+                    URLS.POST.GUILDS.CHANNELS.CREATE_WEBHOOK.replace("{guild.id}", guild().id()).replace("{channel.id}", id()),
+                    discordJv(),
+                    URLS.POST.GUILDS.CHANNELS.CREATE_WEBHOOK,
+                    RequestMethod.POST
+            ).invoke();
+            return IncomingWebhook.decompile(response.body(), discordJv());
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -92,9 +95,8 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @param id The id of the Webhook.
      * @param token The token of the Webhook.
      * @return A {@link com.seailz.discordjar.model.webhook.Webhook} object.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    @Override public Webhook getWebhookByIdWithToken(long id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    @Override public Webhook getWebhookByIdWithToken(long id, @NotNull String token) {
         return getWebhookByIdWithToken(String.valueOf(id), token);
     }
 
@@ -103,56 +105,66 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @param id The id of the Webhook.
      * @param token The token of the Webhook.
      * @return A {@link com.seailz.discordjar.model.webhook.Webhook} object.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    @Override public Webhook getWebhookByIdWithToken(@NotNull String id, @NotNull String token) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    @Override public Webhook getWebhookByIdWithToken(@NotNull String id, @NotNull String token) {
         DiscordResponse response;
         Checker.nullOrEmpty(id, "ID string may not be empty or null.");
         Checker.nullOrEmpty(token, "Token string may not be empty or null.");
-        response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK.replace("{webhook.id}", id).replace("{webhook.token}", token),
-                discordJv(),
-                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK,
-                RequestMethod.GET
-        ).invoke();
-        return Webhook.decompile(response.body(), discordJv());
+        try {
+            response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK.replace("{webhook.id}", id).replace("{webhook.token}", token),
+                    discordJv(),
+                    URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK,
+                    RequestMethod.GET
+            ).invoke();
+            return Webhook.decompile(response.body(), discordJv());
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
-    @Override public Webhook getWebhookById(long id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    @Override public Webhook getWebhookById(long id) {
         return getWebhookById(String.valueOf(id));
     }
 
-    @Override public Webhook getWebhookById(@NotNull String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK_NO_TOKEN.replace("{webhook.id}", id),
-                discordJar,
-                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK_NO_TOKEN,
-                RequestMethod.GET
-        ).invoke();
+    @Override public Webhook getWebhookById(@NotNull String id) {
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK_NO_TOKEN.replace("{webhook.id}", id),
+                    discordJar,
+                    URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOK_NO_TOKEN,
+                    RequestMethod.GET
+            ).invoke();
 
-        return Webhook.decompile(response.body(), discordJar);
+            return Webhook.decompile(response.body(), discordJar);
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Gets the Webhooks that the channel has in effect.
      * @return A {@link java.util.List} of {@link com.seailz.discordjar.model.webhook.Webhook} objects.
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException Thrown when an unexpected error is returned from the Discord API.
      */
-    @Override public List<Webhook> getWebhooks() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse response = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOKS.replace("{guild.id}", guild().id()).replace("{channel.id}", id()),
-                discordJv(),
-                URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOKS,
-                RequestMethod.GET
-        ).invoke();
-        List<Webhook> webhooks = new ArrayList<>();
-        response.arr().forEach(h -> webhooks.add(Webhook.decompile((JSONObject) h, discordJv())));
-        return webhooks;
+    @Override public List<Webhook> getWebhooks() {
+        try {
+            DiscordResponse response = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOKS.replace("{guild.id}", guild().id()).replace("{channel.id}", id()),
+                    discordJv(),
+                    URLS.GET.GUILDS.CHANNELS.GET_CHANNEL_WEBHOOKS,
+                    RequestMethod.GET
+            ).invoke();
+            List<Webhook> webhooks = new ArrayList<>();
+            response.arr().forEach(h -> webhooks.add(Webhook.decompile((JSONObject) h, discordJv())));
+            return webhooks;
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 }
