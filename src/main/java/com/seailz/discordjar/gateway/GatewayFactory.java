@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -256,6 +257,7 @@ public class GatewayFactory extends TextWebSocketHandler {
                 if (!shouldResume) sendIdentify();
                 this.shouldResume = false;
                 readyForMessages = true;
+                discordJar.setGatewayFactory(this);
 
                 if (debug) {
                     logger.info("[DISCORD.JAR - DEBUG] Received HELLO event. Heartbeat cycle has been started. If this isn't a resume, IDENTIFY has been sent.");
@@ -293,7 +295,7 @@ public class GatewayFactory extends TextWebSocketHandler {
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJar);
         if (eventClass == null) {
-            logger.info("[discord.jar] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
+            if (debug) logger.info("[discord.jar] Unhandled event: " + payload.getString("t") + "\nThis is usually ok, if a new feature has recently been added to Discord as discord.jar may not support it yet.\nIf that is not the case, please report this to the discord.jar developers.");
             return;
         }
         if (debug) {
@@ -414,6 +416,11 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     public void sendPayload(JSONObject payload) {
+        if (session == null) {
+            // Session is null, restart gateway
+            discordJar.restartGateway();
+            return;
+        }
         try {
             session.sendMessage(new TextMessage(payload.toString()));
         } catch (Exception e) {

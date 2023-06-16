@@ -1,11 +1,13 @@
 package com.seailz.discordjar;
 
+import com.seailz.discordjar.cache.CacheType;
+import com.seailz.discordjar.model.api.APIRelease;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.utils.HTTPOnlyInfo;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
-import com.seailz.discordjar.utils.version.APIVersion;
+import com.seailz.discordjar.model.api.version.APIVersion;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -23,7 +25,9 @@ public class DiscordJarBuilder {
 
     private final String token;
     private EnumSet<Intent> intents;
+    private EnumSet<CacheType> cacheTypes;
     private APIVersion apiVersion = APIVersion.getLatest();
+    private APIRelease apiRelease = APIRelease.STABLE;
     private boolean httpOnly;
     private HTTPOnlyInfo httpOnlyInfo;
     private boolean debug;
@@ -39,6 +43,11 @@ public class DiscordJarBuilder {
         return this;
     }
 
+    public DiscordJarBuilder setCacheTypes(EnumSet<CacheType> cacheTypes) {
+        this.cacheTypes = cacheTypes;
+        return this;
+    }
+
     /**
      * Resets back to default intents.
      */
@@ -49,9 +58,29 @@ public class DiscordJarBuilder {
         return this;
     }
 
+    public DiscordJarBuilder defaultCacheTypes() {
+        if (this.cacheTypes == null) this.cacheTypes = EnumSet.noneOf(CacheType.class);
+        this.cacheTypes.clear();
+        this.cacheTypes.add(CacheType.ALL);
+        return this;
+    }
+
+    public DiscordJarBuilder clearCacheTypes() {
+        if (this.cacheTypes == null) this.cacheTypes = EnumSet.noneOf(CacheType.class);
+        this.cacheTypes.clear();
+        return this;
+    }
+
     public DiscordJarBuilder addIntents(Intent... intents) {
         for (Intent intent : intents) {
             addIntent(intent);
+        }
+        return this;
+    }
+
+    public DiscordJarBuilder addCacheTypes(CacheType... cacheTypes) {
+        for (CacheType cacheType : cacheTypes) {
+            addCacheType(cacheType);
         }
         return this;
     }
@@ -65,15 +94,34 @@ public class DiscordJarBuilder {
         return this;
     }
 
+    public DiscordJarBuilder addCacheType(CacheType cacheType) {
+        if (this.cacheTypes == null) {
+            this.cacheTypes = EnumSet.noneOf(CacheType.class);
+            cacheTypes.add(CacheType.ALL);
+        };
+        this.cacheTypes.add(cacheType);
+        return this;
+    }
+
     public DiscordJarBuilder removeIntent(Intent intent) {
         if (this.intents == null) return this;
         this.intents.remove(intent);
         return this;
     }
 
+    public DiscordJarBuilder removeCacheType(CacheType cacheType) {
+        if (this.cacheTypes == null) return this;
+        this.cacheTypes.remove(cacheType);
+        return this;
+    }
+
     public DiscordJarBuilder setAPIVersion(APIVersion apiVersion) {
         this.apiVersion = apiVersion;
         return this;
+    }
+
+    public void setAPIRelease(APIRelease apiRelease) {
+        this.apiRelease = apiRelease;
     }
 
     public DiscordJarBuilder setHTTPOnly(boolean httpOnly) {
@@ -118,11 +166,16 @@ public class DiscordJarBuilder {
         return res.body().getInt("shards");
     }
 
-    @SuppressWarnings("deprecation") // Deprecation warning is suppressed here because the intended use of that constructor is here.
-    public DiscordJar build() throws ExecutionException, InterruptedException {
+    @SuppressWarnings("deprecation") // Deprecation warning is suppressed here because the only intended use of the DiscordJar constructor is here.
+    public DiscordJar build() {
         if (intents == null) defaultIntents();
+        if (cacheTypes == null) defaultCacheTypes();
         if (httpOnly && httpOnlyInfo == null) throw new IllegalStateException("HTTPOnly is enabled but no HTTPOnlyInfo was provided.");
-        return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards);
+        try {
+            return new DiscordJar(token, intents, apiVersion, httpOnly, httpOnlyInfo, debug, shardId, numShards, apiRelease, cacheTypes);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

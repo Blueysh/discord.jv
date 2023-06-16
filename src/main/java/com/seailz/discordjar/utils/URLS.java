@@ -1,25 +1,27 @@
 package com.seailz.discordjar.utils;
 
-import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.seailz.discordjar.DiscordJar;
-import com.seailz.discordjar.utils.version.APIVersion;
+import com.seailz.discordjar.model.api.APIRelease;
+import com.seailz.discordjar.model.api.version.APIVersion;
 
 /**
  * A list of all endpoints used by discord.jar
  *
  * @author Seailz
- * @see com.seailz.discordjar.utils.version.APIVersion
+ * @see APIVersion
  * @since 1.0
  */
 public final class URLS {
 
     public static APIVersion version = APIVersion.getLatest();
+    public static APIRelease release = APIRelease.STABLE;
 
-    public URLS(APIVersion version) {
+    public URLS(APIRelease release, APIVersion version) {
         URLS.version = version;
+        URLS.release = release;
     }
 
-    public static final String BASE_URL = "https://discord.com/api/v" + version.getCode();
+    public static final String BASE_URL = "https://" + release.getBaseUrlPrefix() + "discord.com/api/v" + version.getCode();
 
     public static class POST {
         public static class INTERACTIONS {
@@ -94,6 +96,7 @@ public final class URLS {
             public static final String CREATE_CHANNEL_INVITE = "/channels/{channel.id}/invites";
 
             public static class MESSAGES {
+                public static String BULK_DELETE = "/channels/{channel.id}/messages/bulk-delete";
                 public static class THREADS {
                     public static String START_THREAD_FROM_MESSAGE = "/channels/{channel.id}/messages/{message.id}/threads";
                 }
@@ -234,7 +237,7 @@ public final class URLS {
              *
              * @param id The id of the guild
              */
-            public static String GET_GUILD = "/guilds/{guild.id}";
+            public static String GET_GUILD = "/guilds/{guild.id}?with_counts=true";
 
             /**
              * Read {@link DiscordJar#getGuilds()} for more information
@@ -585,6 +588,11 @@ public final class URLS {
 
     public static class GATEWAY {
         public static String BASE_URL = "wss://gateway.discord.gg/?v=" + APIVersion.getLatest().getCode() + "&encoding=json";
+    }
+
+    public static class CDN {
+        public static String BASE_URL = "https://cdn.discordapp.com";
+        public static String DEFAULT_USER_AVATAR = BASE_URL + "/embed/avatars/%s.png";
     }
 
 }

@@ -24,7 +24,9 @@ import com.seailz.discordjar.model.guild.premium.PremiumTier;
 import com.seailz.discordjar.model.guild.verification.VerificationLevel;
 import com.seailz.discordjar.model.guild.welcome.WelcomeScreen;
 import com.seailz.discordjar.model.invite.Invite;
+import com.seailz.discordjar.model.invite.InviteMetadata;
 import com.seailz.discordjar.model.invite.internal.InviteImpl;
+import com.seailz.discordjar.model.invite.internal.InviteMetadataImpl;
 import com.seailz.discordjar.model.role.Role;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.*;
@@ -736,39 +738,46 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     /**
      * Leaves a guild
      */
-    public void leave() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.GUILD.LEAVE_GUILD.replace(
-                        "{guild.id}",
-                        id
-                ),
-                discordJar,
-                URLS.DELETE.GUILD.LEAVE_GUILD,
-                RequestMethod.DELETE
-        ).invoke();
+    public void leave() {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.LEAVE_GUILD.replace(
+                            "{guild.id}",
+                            id
+                    ),
+                    discordJar,
+                    URLS.DELETE.GUILD.LEAVE_GUILD,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Lists the stickers in the guild
      */
-    public List<Sticker> getStickers() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        return Sticker.decompileList(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKERS.replace(
-                                "{guild.id}",
-                                id
-                        ),
-                        discordJar,
-                        URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKERS,
-                        RequestMethod.GET
-                ).invoke().arr(),
-                discordJar
-        );
+    public List<Sticker> getStickers() {
+        try {
+            return Sticker.decompileList(
+                    new DiscordRequest(
+                            new JSONObject(),
+                            new HashMap<>(),
+                            URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKERS.replace(
+                                    "{guild.id}",
+                                    id
+                            ),
+                            discordJar,
+                            URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKERS,
+                            RequestMethod.GET
+                    ).invoke().arr(),
+                    discordJar
+            );
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -776,24 +785,28 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      *
      * @param stickerId The sticker id
      */
-    public Sticker getStickerById(String stickerId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        return Sticker.decompile(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKER.replace(
-                                "{guild.id}",
-                                id
-                        ).replace(
-                                "{sticker.id}",
-                                stickerId
-                        ),
-                        discordJar,
-                        URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKER,
-                        RequestMethod.GET
-                ).invoke().body(),
-                discordJar
-        );
+    public Sticker getStickerById(String stickerId) {
+        try {
+            return Sticker.decompile(
+                    new DiscordRequest(
+                            new JSONObject(),
+                            new HashMap<>(),
+                            URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKER.replace(
+                                    "{guild.id}",
+                                    id
+                            ).replace(
+                                    "{sticker.id}",
+                                    stickerId
+                            ),
+                            discordJar,
+                            URLS.GET.GUILDS.STICKERS.GET_GUILD_STICKER,
+                            RequestMethod.GET
+                    ).invoke().body(),
+                    discordJar
+            );
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -806,69 +819,81 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     /**
      * Deletes a sticker
      */
-    public void deleteSticker(String stickerId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.GUILD.STICKER.DELETE_GUILD_STICKER.replace(
-                        "{guild.id}",
-                        id
-                ).replace(
-                        "{sticker.id}",
-                        stickerId
-                ),
-                discordJar,
-                URLS.DELETE.GUILD.STICKER.DELETE_GUILD_STICKER,
-                RequestMethod.DELETE
-        ).invoke();
+    public void deleteSticker(String stickerId) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.STICKER.DELETE_GUILD_STICKER.replace(
+                            "{guild.id}",
+                            id
+                    ).replace(
+                            "{sticker.id}",
+                            stickerId
+                    ),
+                    discordJar,
+                    URLS.DELETE.GUILD.STICKER.DELETE_GUILD_STICKER,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
      * Returns a list of {@link AutomodRule automod rules} that the guild has
      */
     @NotNull
-    public List<AutomodRule> getAutomodRules() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        return AutomodRule.decompileList(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.AUTOMOD.LIST_AUTOMOD_RULES.replace(
-                                "{guild.id}",
-                                id
-                        ),
-                        discordJar,
-                        URLS.GET.GUILDS.AUTOMOD.LIST_AUTOMOD_RULES,
-                        RequestMethod.GET
-                ).invoke().arr(),
-                discordJar
-        );
+    public List<AutomodRule> getAutomodRules() {
+        try {
+            return AutomodRule.decompileList(
+                    new DiscordRequest(
+                            new JSONObject(),
+                            new HashMap<>(),
+                            URLS.GET.GUILDS.AUTOMOD.LIST_AUTOMOD_RULES.replace(
+                                    "{guild.id}",
+                                    id
+                            ),
+                            discordJar,
+                            URLS.GET.GUILDS.AUTOMOD.LIST_AUTOMOD_RULES,
+                            RequestMethod.GET
+                    ).invoke().arr(),
+                    discordJar
+            );
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     @NotNull
     @Contract("_ -> new")
-    public AutomodRule getAutomodRuleById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        return AutomodRule.decompile(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.AUTOMOD.GET_AUTOMOD_RULE.replace(
-                                "{guild.id}",
-                                this.id
-                        ).replace(
-                                "{rule.id}",
-                                id
-                        ),
-                        discordJar,
-                        URLS.GET.GUILDS.AUTOMOD.GET_AUTOMOD_RULE,
-                        RequestMethod.GET
-                ).invoke().body(),
-                discordJar
-        );
+    public AutomodRule getAutomodRuleById(String id) {
+        try {
+            return AutomodRule.decompile(
+                    new DiscordRequest(
+                            new JSONObject(),
+                            new HashMap<>(),
+                            URLS.GET.GUILDS.AUTOMOD.GET_AUTOMOD_RULE.replace(
+                                    "{guild.id}",
+                                    this.id
+                            ).replace(
+                                    "{rule.id}",
+                                    id
+                            ),
+                            discordJar,
+                            URLS.GET.GUILDS.AUTOMOD.GET_AUTOMOD_RULE,
+                            RequestMethod.GET
+                    ).invoke().body(),
+                    discordJar
+            );
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     @NotNull
     @Contract("_ -> new")
-    public AutomodRule getAutomodRuleById(long id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public AutomodRule getAutomodRuleById(long id) {
         return getAutomodRuleById(Long.toString(id));
     }
 
@@ -876,66 +901,54 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         return new AutomodRuleCreateAction(name, eventType, triggerType, actions, this, discordJar);
     }
 
-    public void deleteAutoModRule(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.DELETE.GUILD.AUTOMOD.DELETE_AUTOMOD_RULE.replace(
-                        "{guild.id}",
-                        this.id
-                ).replace(
-                        "{rule.id}",
-                        id
-                ),
-                discordJar,
-                URLS.DELETE.GUILD.AUTOMOD.DELETE_AUTOMOD_RULE,
-                RequestMethod.DELETE
-        ).invoke();
+    public void deleteAutoModRule(String id) {
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.GUILD.AUTOMOD.DELETE_AUTOMOD_RULE.replace(
+                            "{guild.id}",
+                            this.id
+                    ).replace(
+                            "{rule.id}",
+                            id
+                    ),
+                    discordJar,
+                    URLS.DELETE.GUILD.AUTOMOD.DELETE_AUTOMOD_RULE,
+                    RequestMethod.DELETE
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     public AutomodRuleModifyAction modifyAutomodRule(String id) {
         return new AutomodRuleModifyAction(id, this, discordJar);
     }
 
-    public Member getMemberById(String id) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        DiscordResponse req = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER.replace(
-                        "{guild.id}",
-                        this.id
-                ).replace(
-                        "{user.id}",
-                        id
-                ),
-                discordJar,
-                URLS.GET.GUILDS.MEMBERS.GET_GUILD_MEMBER,
-                RequestMethod.GET
-        ).invoke();
-
-        if (req.body() == null) return null;
-        return Member.decompile(
-                req.body(),
-                discordJar,
-                this.id,
-                this
-        );
+    public Member getMemberById(String id) {
+        return discordJar.getMemberById(this.id, id);
     }
 
-    public List<Member> getMembers(int limit, String after) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public List<Member> getMembers(int limit, String after) {
         Checker.check(limit <= 0, "Limit must be greater than 0");
         Checker.check(limit > 1000, "Limit must be less than or equal to 1000");
-        JSONArray arr = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS.replace(
-                        "{guild.id}",
-                        id
-                ) + "?limit=" + limit + (after == null ? "" : "&after=" + after),
-                discordJar,
-                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS,
-                RequestMethod.GET
-        ).invoke().arr();
+        JSONArray arr = null;
+        try {
+            arr = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS.replace(
+                            "{guild.id}",
+                            id
+                    ) + "?limit=" + limit + (after == null ? "" : "&after=" + after),
+                    discordJar,
+                    URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS,
+                    RequestMethod.GET
+            ).invoke().arr();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
 
         List<Member> members = new ArrayList<>();
         for (Object obj : arr) {
@@ -946,18 +959,23 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     }
 
 
-    public List<Member> getMembers() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        JSONArray arr = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS.replace(
-                        "{guild.id}",
-                        id
-                ),
-                discordJar,
-                URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS,
-                RequestMethod.GET
-        ).invoke().arr();
+    public List<Member> getMembers() {
+        JSONArray arr = null;
+        try {
+            arr = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS.replace(
+                            "{guild.id}",
+                            id
+                    ),
+                    discordJar,
+                    URLS.GET.GUILDS.MEMBERS.LIST_GUILD_MEMBERS,
+                    RequestMethod.GET
+            ).invoke().arr();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
 
         List<Member> members = new ArrayList<>();
         for (Object obj : arr) {
@@ -971,17 +989,21 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * Lists the guild's custom emojis.
      * @return A list of the guild emojis.
      */
-    public List<Emoji> getEmojis() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public List<Emoji> getEmojis() {
         List<Emoji> emojis = new ArrayList<>();
 
-        new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS.replace("{guild.id}", id),
-                discordJar,
-                URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS,
-                RequestMethod.GET
-        ).invoke().arr().forEach((object) -> emojis.add(Emoji.decompile((JSONObject) object, discordJar)));
+        try {
+            new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.GET.GUILDS.EMOJIS.GUILD_EMOJIS,
+                    RequestMethod.GET
+            ).invoke().arr().forEach((object) -> emojis.add(Emoji.decompile((JSONObject) object, discordJar)));
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
 
         return emojis;
     }
@@ -991,18 +1013,22 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
-    public Emoji getEmojiById(@NotNull String emojiId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        return Emoji.decompile(
-                new DiscordRequest(
-                        new JSONObject(),
-                        new HashMap<>(),
-                        URLS.GET.GUILDS.EMOJIS.GET_GUILD_EMOJI.replace("{guild.id}", this.id).replace("{emoji.id}", emojiId),
-                        discordJar,
-                        URLS.GET.GUILDS.GET_GUILD,
-                        RequestMethod.GET
-                ).invoke().body(),
-                discordJar
-        );
+    public Emoji getEmojiById(@NotNull String emojiId) {
+        try {
+            return Emoji.decompile(
+                    new DiscordRequest(
+                            new JSONObject(),
+                            new HashMap<>(),
+                            URLS.GET.GUILDS.EMOJIS.GET_GUILD_EMOJI.replace("{guild.id}", this.id).replace("{emoji.id}", emojiId),
+                            discordJar,
+                            URLS.GET.GUILDS.GET_GUILD,
+                            RequestMethod.GET
+                    ).invoke().body(),
+                    discordJar
+            );
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
     /**
@@ -1010,7 +1036,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * @param emojiId The id of the emoji to get.
      * @return The emoji if it exists. Returns {@code null} if it does not exist.
      */
-    public @NotNull Emoji getEmojiById(long emojiId) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public @NotNull Emoji getEmojiById(long emojiId) {
         return getEmojiById(String.valueOf(emojiId));
     }
 
@@ -1019,27 +1045,28 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * Does not include threads.
      */
     @NotNull
-    public List<GuildChannel> getChannels() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public List<GuildChannel> getChannels() {
         List<GuildChannel> channels = new ArrayList<>();
-        DiscordResponse req = new DiscordRequest(
-                new JSONObject(),
-                new HashMap<>(),
-                URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS.replace("{guild.id}", id),
-                discordJar,
-                URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS,
-                RequestMethod.GET
-        ).invoke();
+        DiscordResponse req = null;
+        try {
+            req = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS.replace("{guild.id}", id),
+                    discordJar,
+                    URLS.GET.GUILDS.CHANNELS.GET_GUILD_CHANNELS,
+                    RequestMethod.GET
+            ).invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            return new ArrayList<>();
+        }
         JSONArray res = req.arr();
         if (res == null) {
             Logger.getLogger("DiscordJar").warning("Failed to get channels for guild " + req.code());
             return new ArrayList<>();
         }
         res.forEach(o -> {
-            try {
-                channels.add(GuildChannel.decompile((JSONObject) o, discordJar));
-            } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                throw new RuntimeException(e);
-            }
+            channels.add(GuildChannel.decompile((JSONObject) o, discordJar));
         });
         return channels;
     }
@@ -1072,7 +1099,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         try {
             res = req.invoke().arr();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
         res.forEach(o -> roles.add(Role.decompile((JSONObject) o)));
 
@@ -1086,7 +1113,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * Used to request a list of all members in a guild.
      * This method can take a <b>LONG</b> time to complete, so it is not recommended to use this often.
      * <p>
-     * If you don't have the <b>GUILD_PRESENCES</b> intent enabled, or the guild is over 75k members,
+     * If you don't have the <b>GUILD_MEMBERS</b> intent enabled, or the guild is over 75k members,
      * <br>this will only send members who are in voice, plus the member for you (the bot user).
      * <p>
      * If a guild has over a certain threshold of members, this will only send members wo are online,
@@ -1134,8 +1161,8 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
      * <br>This method requires the <b>MANAGE_GUILD</b> permission.
      * @return A list of {@link Invite invites} for this guild.
      */
-    public List<Invite> getInvites() throws DiscordRequest.UnhandledDiscordAPIErrorException {
-        List<Invite> invites = new ArrayList<>();
+    public List<InviteMetadata> getInvites() {
+        List<InviteMetadata> invites = new ArrayList<>();
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -1145,8 +1172,12 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 RequestMethod.GET
         );
         JSONArray res;
-        res = req.invoke().arr();
-        res.forEach(o -> invites.add(InviteImpl.decompile((JSONObject) o, discordJar)));
+        try {
+            res = req.invoke().arr();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
+        res.forEach(o -> invites.add(InviteMetadataImpl.decompile((JSONObject) o, discordJar)));
         return invites;
     }
 
@@ -1173,7 +1204,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     RequestMethod.DELETE
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
         if (response.code() != 200) throw new RuntimeException("An error occurred when deleting the guild. Make sure the application owns the guild before doing this.");
     }
@@ -1194,7 +1225,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     RequestMethod.DELETE
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1245,7 +1276,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     RequestMethod.POST
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1265,7 +1296,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     RequestMethod.GET
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
 
         List<GuildBan> bans = new ArrayList<>();
@@ -1291,7 +1322,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     RequestMethod.GET
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
         return GuildBan.decompile(response.body(), discordJar);
     }
@@ -1320,7 +1351,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     RequestMethod.PUT
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1347,7 +1378,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     RequestMethod.PUT
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1389,7 +1420,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
         try {
             return req.invoke().body().getInt("pruned");
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1413,7 +1444,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             ).invoke();
             return response.body().getInt("pruned");
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1452,7 +1483,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             ).invoke();
             return req.body().getInt("pruned");
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1484,7 +1515,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     RequestMethod.POST
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1517,7 +1548,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
             ).invoke().arr().forEach((memberObject) -> namedMembers.add(Member.decompile((JSONObject) memberObject, discordJar, id(), this)));
             return namedMembers;
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1536,7 +1567,7 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     RequestMethod.DELETE
             ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1555,16 +1586,12 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                     URLS.GET.GUILDS.GET_ACTIVE_THREADS,
                     RequestMethod.GET
             ).invoke().body().getJSONArray("threads").forEach((thread) -> {
-                try {
-                    Thread decompiledThread = Thread.decompile((JSONObject) thread, discordJar);
-                    threads.add(decompiledThread);
-                } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-                    throw new RuntimeException(e);
-                }
+                Thread decompiledThread = Thread.decompile((JSONObject) thread, discordJar);
+                threads.add(decompiledThread);
             });
             return threads;
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new RuntimeException(e);
+            throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
@@ -1588,9 +1615,9 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
     /**
      * Returns the onboarding flow for this guild.
      * @return {@link Onboarding}
-     * @throws DiscordRequest.UnhandledDiscordAPIErrorException If the request fails.
+     * @throws DiscordRequest.DiscordAPIErrorException If the request fails.
      */
-    public @NotNull Onboarding getOnboarding() throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    public @NotNull Onboarding getOnboarding() {
         DiscordRequest req = new DiscordRequest(
                 new JSONObject(),
                 new HashMap<>(),
@@ -1599,7 +1626,11 @@ public class Guild implements Compilerable, Snowflake, CDNAble {
                 URLS.GET.GUILDS.GET_GUILD_ONBOARDING,
                 RequestMethod.GET
         );
-        return Onboarding.decompile(req.invoke().body(), this, discordJar);
+        try {
+            return Onboarding.decompile(req.invoke().body(), this, discordJar);
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 
 

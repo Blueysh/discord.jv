@@ -65,7 +65,7 @@ public interface GuildChannel extends Channel {
      */
     @NotNull
     @Contract("_, _ -> new")
-    static GuildChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) throws DiscordRequest.UnhandledDiscordAPIErrorException {
+    static GuildChannel decompile(@NotNull JSONObject obj, @NotNull DiscordJar discordJar) {
         String id = obj.getString("id");
         ChannelType type = ChannelType.fromCode(obj.getInt("type"));
         String name = obj.getString("name");
@@ -90,7 +90,6 @@ public interface GuildChannel extends Channel {
 
     /**
      * Returns this class as a {@link MessagingChannel}, or null if it is not a messaging channel.
-     *
      * @throws IllegalArgumentException If the channel is not a messaging channel
      */
     @Nullable
@@ -105,7 +104,6 @@ public interface GuildChannel extends Channel {
 
     /**
      * Adds a {@link PermissionOverwrite} to this channel
-     *
      * @param overwrite The {@link PermissionOverwrite} to add
      */
     default void addPermissionOverwrite(@NotNull PermissionOverwrite overwrite) {
@@ -139,6 +137,10 @@ public interface GuildChannel extends Channel {
                 URLS.PUT.CHANNELS.PERMISSIONS.EDIT_CHANNEL_PERMS,
                 RequestMethod.PUT
         );
-        req.invoke();
+        try {
+            req.invoke();
+        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
+            throw new DiscordRequest.DiscordAPIErrorException(e);
+        }
     }
 }
