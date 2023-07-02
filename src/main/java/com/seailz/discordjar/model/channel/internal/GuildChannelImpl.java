@@ -73,7 +73,8 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @implNote Avatars are not yet implemented in discord.jar.
      */
     // FIXME: 3/23/23 Implement avatar data
-    @Override public IncomingWebhook createWebhook(String name) {
+    @Override
+    public IncomingWebhook createWebhook(String name) {
         try {
             DiscordResponse response = new DiscordRequest(
                     new JSONObject()
@@ -96,7 +97,8 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @param token The token of the Webhook.
      * @return A {@link com.seailz.discordjar.model.webhook.Webhook} object.
      */
-    @Override public Webhook getWebhookByIdWithToken(long id, @NotNull String token) {
+    @Override
+    public Webhook getWebhookByIdWithToken(long id, @NotNull String token) {
         return getWebhookByIdWithToken(String.valueOf(id), token);
     }
 
@@ -106,7 +108,8 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @param token The token of the Webhook.
      * @return A {@link com.seailz.discordjar.model.webhook.Webhook} object.
      */
-    @Override public Webhook getWebhookByIdWithToken(@NotNull String id, @NotNull String token) {
+    @Override
+    public Webhook getWebhookByIdWithToken(@NotNull String id, @NotNull String token) {
         DiscordResponse response;
         Checker.nullOrEmpty(id, "ID string may not be empty or null.");
         Checker.nullOrEmpty(token, "Token string may not be empty or null.");
@@ -125,11 +128,13 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
         }
     }
 
-    @Override public Webhook getWebhookById(long id) {
+    @Override
+    public Webhook getWebhookById(long id) {
         return getWebhookById(String.valueOf(id));
     }
 
-    @Override public Webhook getWebhookById(@NotNull String id) {
+    @Override
+    public Webhook getWebhookById(@NotNull String id) {
         try {
             DiscordResponse response = new DiscordRequest(
                     new JSONObject(),
@@ -150,7 +155,8 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * Gets the Webhooks that the channel has in effect.
      * @return A {@link java.util.List} of {@link com.seailz.discordjar.model.webhook.Webhook} objects.
      */
-    @Override public List<Webhook> getWebhooks() {
+    @Override
+    public List<Webhook> getWebhooks() {
         try {
             DiscordResponse response = new DiscordRequest(
                     new JSONObject(),
