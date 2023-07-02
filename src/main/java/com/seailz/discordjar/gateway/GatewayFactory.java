@@ -29,10 +29,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -67,6 +64,8 @@ public class GatewayFactory extends TextWebSocketHandler {
     public UUID uuid = UUID.randomUUID();
     private int shardId;
     private int numShards;
+    public static List<Long> pingHistoryMs = new ArrayList<>();
+    public static Date lastHeartbeatSent = new Date();
 
     public GatewayFactory(DiscordJar discordJar, boolean debug, int shardId, int numShards) throws ExecutionException, InterruptedException {
         this.discordJar = discordJar;
@@ -285,12 +284,20 @@ public class GatewayFactory extends TextWebSocketHandler {
                 reconnect();
                 break;
             case HEARTBEAT_ACK:
-                // Heartbeat was acknowledged, can ignore.
+                // Heartbeat was acknowledged, can ignore, but we'll log the request ping anyway.
+                if (lastHeartbeatSent != null) {
+                    long ping = System.currentTimeMillis() - lastHeartbeatSent.getTime();
+                    if (debug) {
+                        logger.info("[DISCORD.JAR - DEBUG] Received HEARTBEAT_ACK event. Ping: " + ping + "ms");
+                    }
+
+                    pingHistoryMs.add(ping);
+                }
                 break;
         }
     }
 
-    private void handleDispatched(JSONObject payload) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DiscordRequest.UnhandledDiscordAPIErrorException {
+    private void handleDispatched(JSONObject payload) {
         // Handle dispatched events
         // actually dispatch the event
         Class<? extends Event> eventClass = DispatchedEvents.getEventByName(payload.getString("t")).getEvent().apply(payload, this, discordJar);
@@ -303,14 +310,24 @@ public class GatewayFactory extends TextWebSocketHandler {
         }
         if (eventClass.equals(CommandInteractionEvent.class)) return;
 
-        Event event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
-                .newInstance(discordJar, sequence, payload);
+        new Thread(() -> {
+            Event event = null;
+            try {
+                event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
+                        .newInstance(discordJar, sequence, payload);
+            } catch (InstantiationException | IllegalAccessException |
+                     NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException ex) {
 
-        discordJar.getEventDispatcher().dispatchEvent(event, eventClass, discordJar);
+            }
 
-        if (debug) {
-            logger.info("[DISCORD.JAR - DEBUG] Event dispatched: " + eventClass.getName());
-        }
+            discordJar.getEventDispatcher().dispatchEvent(event, eventClass, discordJar);
+
+            if (debug) {
+                logger.info("[DISCORD.JAR - DEBUG] Event dispatched: " + eventClass.getName());
+            }
+        }).start();
 
         switch (DispatchedEvents.getEventByName(payload.getString("t"))) {
             case READY:
