@@ -1,6 +1,7 @@
 package com.seailz.discordjar.utils.image;
 
 import java.util.Arrays;
+import java.util.Base64;
 
 public class ImageUtils {
 
@@ -10,6 +11,33 @@ public class ImageUtils {
 
         Object[] paramsList = Arrays.stream(params).toArray();
         return String.format(paramable, paramsList);
+    }
+
+    public static Image createImageData(ImageFormat format, String rawImageData) {
+        String base64Data = Base64.getEncoder().encodeToString(rawImageData.getBytes());
+        return new Image(format, "data:%s;base64,%s".formatted(format.toString(), base64Data));
+    }
+
+    public record Image(
+            ImageFormat format,
+            String base64Data
+    ) {}
+
+    public enum ImageFormat {
+        JPEG("image/jpeg"),
+        PNG("image/png"),
+        GIF("image/gif");
+
+        private final String f;
+
+        ImageFormat(String f) {
+            this.f = f;
+        }
+
+        @Override
+        public String toString() {
+            return f;
+        }
     }
 
     public enum ImageType {

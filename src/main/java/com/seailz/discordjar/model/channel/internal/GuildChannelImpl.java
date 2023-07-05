@@ -9,6 +9,7 @@ import com.seailz.discordjar.model.webhook.IncomingWebhook;
 import com.seailz.discordjar.model.webhook.Webhook;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.image.ImageUtils;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
@@ -70,12 +71,25 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      *
      * @param name The name of the Webhook.
      * @return The created Webhook.
-     * @implNote Avatars are not yet implemented in discord.jar.
      */
-    // FIXME: 3/23/23 Implement avatar data
     @Override
     public IncomingWebhook createWebhook(String name) {
+        return createWebhook(name, null);
+    }
+
+    /**
+     * Creates an Incoming Webhook for this channel.
+     *
+     * @param name The name of the Webhook.
+     * @param avatar The default avatar for the Webhook.
+     * @return The created Webhook.
+     */
+    @Override
+    public IncomingWebhook createWebhook(String name, ImageUtils.Image avatar) {
         try {
+            JSONObject body = new JSONObject();
+            body.put("name", name);
+            if (avatar != null) body.put("avatar", avatar.base64Data());
             DiscordResponse response = new DiscordRequest(
                     new JSONObject()
                             .put("name", name),

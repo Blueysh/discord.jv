@@ -10,6 +10,7 @@ import com.seailz.discordjar.model.webhook.IncomingWebhook;
 import com.seailz.discordjar.model.webhook.Webhook;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.URLS;
+import com.seailz.discordjar.utils.image.ImageUtils;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -115,7 +116,8 @@ public interface GuildChannel extends Channel {
         return new CreateChannelInviteAction(discordJv(), id());
     }
 
-    // FIXME: 3/23/23 Implement avatar data
+    IncomingWebhook createWebhook(String name, ImageUtils.Image avatar);
+
     IncomingWebhook createWebhook(String name);
 
     Webhook getWebhookById(long id);
