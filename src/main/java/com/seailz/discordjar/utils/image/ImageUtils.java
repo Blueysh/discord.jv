@@ -38,6 +38,15 @@ public class ImageUtils {
         public String toString() {
             return f;
         }
+
+        public static ImageFormat of(String s) {
+            return switch (s.toLowerCase()) {
+                case "jpeg", "jpg" -> ImageFormat.JPEG;
+                case "png" -> ImageFormat.PNG;
+                case "gif" -> ImageFormat.GIF;
+                default -> null;
+            };
+        }
     }
 
     public enum ImageType {

@@ -12,11 +12,14 @@ import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.image.ImageUtils;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
+import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,11 +88,30 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
      * @return The created Webhook.
      */
     @Override
-    public IncomingWebhook createWebhook(String name, ImageUtils.Image avatar) {
+    public IncomingWebhook createWebhook(String name, File avatar) {
         try {
+            ImageUtils.Image avatarImage = null;
+            if (avatar != null) {
+                BufferedReader reader = new BufferedReader(new FileReader(avatar));
+
+                StringBuilder imageData = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    imageData.append(line);
+                }
+
+                String encodedData = Base64.encodeBase64String(imageData.toString().getBytes());
+
+                String[] splitFileName = avatar.getName().split("\\.");
+                String fileFormat = splitFileName[splitFileName.length - 1];
+
+                avatarImage = ImageUtils.createImageData(ImageUtils.ImageFormat.of(fileFormat), encodedData);
+
+            }
+
             JSONObject body = new JSONObject();
             body.put("name", name);
-            if (avatar != null) body.put("avatar", avatar.base64Data());
+            if (avatar != null) body.put("avatar", avatarImage.base64Data());
             DiscordResponse response = new DiscordRequest(
                     new JSONObject()
                             .put("name", name),
@@ -102,6 +124,10 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
             return IncomingWebhook.decompile(response.body(), discordJv());
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

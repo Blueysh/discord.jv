@@ -18,6 +18,8 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -116,7 +118,7 @@ public interface GuildChannel extends Channel {
         return new CreateChannelInviteAction(discordJv(), id());
     }
 
-    IncomingWebhook createWebhook(String name, ImageUtils.Image avatar);
+    IncomingWebhook createWebhook(String name, File avatar);
 
     IncomingWebhook createWebhook(String name);
 
