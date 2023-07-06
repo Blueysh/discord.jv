@@ -6,7 +6,7 @@ import com.seailz.discordjar.events.model.Event;
 import com.seailz.discordjar.events.model.interaction.command.CommandInteractionEvent;
 import com.seailz.discordjar.gateway.events.DispatchedEvents;
 import com.seailz.discordjar.gateway.events.GatewayEvents;
-import com.seailz.discordjar.gateway.heartbeat.HeartbeatManager;
+import com.seailz.discordjar.gateway.heartbeat.Heart;
 import com.seailz.discordjar.model.application.Intent;
 import com.seailz.discordjar.model.guild.Guild;
 import com.seailz.discordjar.model.guild.Member;
@@ -32,7 +32,6 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -56,7 +55,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     private final String gatewayUrl;
     private String sessionId;
     private String resumeUrl;
-    private HeartbeatManager heartbeatManager;
+    private Heart heartbeatManager;
     private boolean shouldResume = false;
     private boolean readyForMessages = false;
     public HashMap<String, GatewayFactory.MemberChunkStorageWrapper> memberRequestChunks = new HashMap<>();
@@ -232,7 +231,6 @@ public class GatewayFactory extends TextWebSocketHandler {
         super.handleTextMessage(session, message);
         JSONObject payload = new JSONObject(message.getPayload());
         if (discordJar.getGateway() != this) {
-            logger.info("[DISCORD.JAR] Received message from a gateway that isn't the main gateway. This is usually a bug, please report it on discord.jar's GitHub with this log message. Payload: " + payload.toString());
             return;
         }
 
@@ -311,15 +309,15 @@ public class GatewayFactory extends TextWebSocketHandler {
         if (eventClass.equals(CommandInteractionEvent.class)) return;
 
         new Thread(() -> {
-            Event event = null;
+            Event event;
             try {
                 event = eventClass.getConstructor(DiscordJar.class, long.class, JSONObject.class)
                         .newInstance(discordJar, sequence, payload);
-            } catch (InstantiationException | IllegalAccessException |
-                     NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException ex) {
-
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                     InvocationTargetException e) {
+                logger.warning("[DISCORD.JAR - EVENTS] Failed to dispatch " + eventClass.getName() + " event. This is usually a bug, please report it on discord.jar's GitHub with this log message.");
+                e.printStackTrace();
+                return;
             }
 
             discordJar.getEventDispatcher().dispatchEvent(event, eventClass, discordJar);
@@ -402,7 +400,7 @@ public class GatewayFactory extends TextWebSocketHandler {
     }
 
     private void handleHello(JSONObject payload) {
-        heartbeatManager = new HeartbeatManager(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
+        heartbeatManager = new Heart(payload.getJSONObject("d").getInt("heartbeat_interval"), this);
     }
 
     private void sendIdentify() {
