@@ -120,6 +120,11 @@ public final class URLS {
 
     public static class GET {
 
+        public static class WEBHOOK {
+
+            public static final String GET_WEBHOOK_MESSAGE = "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}";
+        }
+
         public static class VOICE {
             public static class REGIONS {
                 /**
@@ -371,7 +376,7 @@ public final class URLS {
     }
 
     public static class DELETE {
-
+        
         public static class GUILD {
             /**
              * Deletes a guild.
@@ -442,6 +447,8 @@ public final class URLS {
              * @param webhook.id The id of the webhook
              */
             public static final String DELETE_WEBHOOK_NO_TOKEN = "/webhooks/{webhook.id}";
+            public static final String DELETE_WEBHOOK_MESSAGE = "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}";
+
             public static class PINS {
                 public static String UNPIN_MESSAGE = "/channels/{channel.id}/pins/{message.id}";
             }
@@ -476,6 +483,7 @@ public final class URLS {
         public static class WEBHOOK {
             public static final String MODIFY_NOTOKEN = "/webhooks/{webhook.id}";
             public static final String MODIFY = "/webhooks/{webhook.id}/{webhook.token}";
+            public static final String EDIT_WEBHOOK_MESSAGE = "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}";
         }
 
         public static class GUILD {

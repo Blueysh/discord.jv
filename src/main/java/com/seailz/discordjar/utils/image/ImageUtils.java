@@ -1,7 +1,8 @@
 package com.seailz.discordjar.utils.image;
 
+import org.apache.commons.codec.binary.Base64;
+
 import java.util.Arrays;
-import java.util.Base64;
 
 public class ImageUtils {
 
@@ -13,8 +14,8 @@ public class ImageUtils {
         return String.format(paramable, paramsList);
     }
 
-    public static Image createImageData(ImageFormat format, String rawImageData) {
-        String base64Data = Base64.getEncoder().encodeToString(rawImageData.getBytes());
+    public static Image createImageData(ImageFormat format, byte[] rawImageData) {
+        String base64Data = Base64.encodeBase64String(rawImageData);
         return new Image(format, "data:%s;base64,%s".formatted(format.toString(), base64Data));
     }
 

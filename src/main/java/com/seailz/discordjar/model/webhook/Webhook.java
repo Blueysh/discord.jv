@@ -71,7 +71,7 @@ public record Webhook(
                 json.has("channel_id") ? () -> json.getString("channel_id") : null,
                 json.has("user") ? User.decompile(json.getJSONObject("user"), discordJar) : null,
                 json.has("name") ? json.getString("name") : null,
-                json.has("avatar") ? json.getString("avatar") : null,
+                json.has("avatar") ? String.valueOf(json.get("avatar")) : null,
                 json.has("token") ? json.getString("token") : null,
                 json.has("application_id") ? () -> json.getString("application_id") : null,
                 json.has("source_guild") ? Guild.decompile(json.getJSONObject("source_guild"), discordJar) : null,

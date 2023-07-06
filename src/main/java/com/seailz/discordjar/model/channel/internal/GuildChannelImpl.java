@@ -13,6 +13,7 @@ import com.seailz.discordjar.utils.image.ImageUtils;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
 import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -92,20 +93,13 @@ public class GuildChannelImpl extends ChannelImpl implements GuildChannel {
         try {
             ImageUtils.Image avatarImage = null;
             if (avatar != null) {
-                BufferedReader reader = new BufferedReader(new FileReader(avatar));
 
-                StringBuilder imageData = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    imageData.append(line);
-                }
-
-                String encodedData = Base64.encodeBase64String(imageData.toString().getBytes());
+                byte[] imageContents = FileUtils.readFileToByteArray(avatar);
 
                 String[] splitFileName = avatar.getName().split("\\.");
                 String fileFormat = splitFileName[splitFileName.length - 1];
 
-                avatarImage = ImageUtils.createImageData(ImageUtils.ImageFormat.of(fileFormat), encodedData);
+                avatarImage = ImageUtils.createImageData(ImageUtils.ImageFormat.of(fileFormat), imageContents);
 
             }
 

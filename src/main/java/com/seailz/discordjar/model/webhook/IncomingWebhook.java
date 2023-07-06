@@ -2,18 +2,22 @@ package com.seailz.discordjar.model.webhook;
 
 import com.seailz.discordjar.DiscordJar;
 import com.seailz.discordjar.core.Compilerable;
+import com.seailz.discordjar.model.channel.ForumChannel;
 import com.seailz.discordjar.model.embed.Embed;
+import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
 import com.seailz.discordjar.model.user.User;
 import com.seailz.discordjar.utils.Checker;
 import com.seailz.discordjar.utils.Snowflake;
 import com.seailz.discordjar.utils.URLS;
 import com.seailz.discordjar.utils.rest.DiscordRequest;
+import com.seailz.discordjar.utils.rest.DiscordResponse;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents an Incoming Webhook.
@@ -71,13 +75,26 @@ public record IncomingWebhook(
     }
 
     /**
-     * Sends a message as the Webhook.
-     * @param messageContent Message content to send.
+     * Executes the Webhook.
+     * @param content The Message content to include. Can be skipped by setting to {@code null}.
+     * @param embeds The Embeds to include. Can be skipped by setting to {@code null}.
+     * @param attachments The Attachments to include. Can be skipped by setting to {@code null}.
+     * @param usernameOverride A username override to use when sending the message. The Webhook remains unaffected. Can be skipped by setting to {@code null}.
+     * @param avatarUrlOverride An avatar override URL to use when sending the message. The Webhook remains unaffected. Can be skipped by setting to {@code null}.
+     * @param threadName The name of the Thread that will be created with this message. Requires the Webhook channel to be a Forum channel. Can be skipped by setting to {@code null}.
      */
-    public void sendMessage(String messageContent) {
+    public void execute(String content, List<Embed> embeds, List<Attachment> attachments, String usernameOverride, String avatarUrlOverride, String threadName){
+        JSONObject body = new JSONObject();
+        if (content != null) body.put("content", content);
+        if (embeds != null) body.put("embeds", new JSONArray(embeds));
+        if (attachments != null) body.put("attachments", new JSONArray(attachments));
+        if (usernameOverride != null) body.put("username", usernameOverride);
+        if (avatarUrlOverride != null) body.put("avatar_url", avatarUrlOverride);
+        if (threadName != null) {
+            body.put("thread_name", threadName);
+        }
         DiscordRequest request = new DiscordRequest(
-                new JSONObject()
-                        .put("content", messageContent),
+                body,
                 new HashMap<>(),
                 URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
                 discordJar,
@@ -92,20 +109,31 @@ public record IncomingWebhook(
     }
 
     /**
-     * Sends a message as the Webhook.
-     * @param messageContent Message content to send.
-     * @param usernameOverride A username override to use when sending this message. The Webhook remains unaffected.
+     * Edits a previously-sent message from the Webhook.
+     * @param content The Message content to include. Can be skipped by setting to {@code null}.
+     * @param embeds The Embeds to include. Can be skipped by setting to {@code null}.
+     * @param attachments The Attachments to include. Can be skipped by setting to {@code null}.
+     * @param usernameOverride A username override to use when sending the message. The Webhook remains unaffected. Can be skipped by setting to {@code null}.
+     * @param avatarUrlOverride An avatar override URL to use when sending the message. The Webhook remains unaffected. Can be skipped by setting to {@code null}.
+     * @param threadName The name of the Thread that will be created with this message. Requires the Webhook channel to be a Forum channel. Can be skipped by setting to {@code null}.
      */
-    public void sendMessage(String messageContent, String usernameOverride) {
+    public void editMessage(String messageId, String content, List<Embed> embeds, List<Attachment> attachments, String usernameOverride, String avatarUrlOverride, String threadName){
+        JSONObject body = new JSONObject();
+        if (content != null) body.put("content", content);
+        if (embeds != null) body.put("embeds", new JSONArray(embeds));
+        if (attachments != null) body.put("attachments", new JSONArray(attachments));
+        if (usernameOverride != null) body.put("username", usernameOverride);
+        if (avatarUrlOverride != null) body.put("avatar_url", avatarUrlOverride);
+        if (threadName != null) {
+            body.put("thread_name", threadName);
+        }
         DiscordRequest request = new DiscordRequest(
-                new JSONObject()
-                        .put("content", messageContent)
-                        .put("username", usernameOverride),
+                body,
                 new HashMap<>(),
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
+                URLS.PATCH.WEBHOOK.EDIT_WEBHOOK_MESSAGE.replace("{webhook.id}", id.id()).replace("{webhook.token}", token).replace("{message.id}", messageId),
                 discordJar,
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
-                RequestMethod.POST
+                URLS.PATCH.WEBHOOK.EDIT_WEBHOOK_MESSAGE,
+                RequestMethod.PATCH
         );
         try {
             request.invoke();
@@ -115,92 +143,41 @@ public record IncomingWebhook(
     }
 
     /**
-     * Sends a list of {@link com.seailz.discordjar.model.embed.Embed} objects as the Webhook.
-     * @param embeds The embeds to send.
+     * Gets a previously-sent Webhook message.
+     * @param messageId The id of the message.
+     * @return The Webhook Message if successful.
      */
-    public void sendEmbeds(Embed... embeds) {
-        Checker.check(embeds.length <= 10, "There can be no greater than 10 embeds!");
-        DiscordRequest request = new DiscordRequest(
-                new JSONObject()
-                        .put("embeds", new JSONArray(embeds)),
-                new HashMap<>(),
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
-                discordJar,
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
-                RequestMethod.POST
-        );
+    public Message getMessage(String messageId) {
         try {
-            request.invoke();
+            DiscordResponse res = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.GET.WEBHOOK.GET_WEBHOOK_MESSAGE.replace("{webhook.id}", id.id()).replace("{webhook.token}", token).replace("{message.id}", messageId),
+                    discordJar,
+                    URLS.GET.WEBHOOK.GET_WEBHOOK_MESSAGE,
+                    RequestMethod.GET
+            ).invoke();
+
+            return Message.decompile(res.body(), discordJar);
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
     }
 
     /**
-     * Sends a list of {@link com.seailz.discordjar.model.embed.Embed} objects as the Webhook.
-     * @param embeds The embeds to send.
-     * @param usernameOverride A username override to use when sending the embeds. The Webhook remains unaffected.
+     * Deletes a previously-sent Webhook message.
+     * @param messageId The id of the message.
      */
-    public void sendEmbeds(String usernameOverride, Embed... embeds) {
-        Checker.check(embeds.length <= 10, "There can be no greater than 10 embeds!");
-        DiscordRequest request = new DiscordRequest(
-                new JSONObject()
-                        .put("embeds", new JSONArray(embeds))
-                        .put("username", usernameOverride),
-                new HashMap<>(),
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
-                discordJar,
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
-                RequestMethod.POST
-        );
+    public void deleteMessage(String messageId) {
         try {
-            request.invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
-    }
-
-    /**
-     * Sends a message as the Webhook.
-     * @param message The Message object to send.
-     */
-    public void send(Message message) {
-        DiscordRequest request = new DiscordRequest(
-                new JSONObject()
-                        .put("content", message.content()),
-                new HashMap<>(),
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
-                discordJar,
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
-                RequestMethod.POST
-        );
-        try {
-            request.invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
-    }
-
-    /**
-     * Sends a message as the Webhook.
-     * @param message The Message object to send.
-     * @param usernameOverride A username override to use when sending the message. The Webhook remains unaffected.
-     */
-    public void send(Message message, String usernameOverride){
-        DiscordRequest request = new DiscordRequest(
-                new JSONObject()
-                        .put("content", message.content())
-                        .put("embeds", message.embeds())
-                        .put("attachments", message.attachments())
-                        .put("username", usernameOverride),
-                new HashMap<>(),
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
-                discordJar,
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
-                RequestMethod.POST
-        );
-        try {
-            request.invoke();
+            DiscordResponse res = new DiscordRequest(
+                    new JSONObject(),
+                    new HashMap<>(),
+                    URLS.DELETE.CHANNEL.DELETE_WEBHOOK_MESSAGE.replace("{webhook.id}", id.id()).replace("{webhook.token}", token).replace("{message.id}", messageId),
+                    discordJar,
+                    URLS.DELETE.CHANNEL.DELETE_WEBHOOK_MESSAGE,
+                    RequestMethod.DELETE
+            ).invoke();
         } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
             throw new DiscordRequest.DiscordAPIErrorException(e);
         }
