@@ -88,6 +88,15 @@ public final class URLS {
                  * @param webhook.token The token of the webhook
                  */
                 public static final String EXECUTE_WEBHOOK = "/webhooks/{webhook.id}/{webhook.token}";
+                /**
+                 * Executes a webhook
+                 * @param guild.id The id of the guild
+                 * @param channel.id The id of the channel
+                 * @param webhook.id The id of the webhook
+                 * @param webhook.token The token of the webhook
+                 * @param wait Whether to wait for server confirmation
+                 */
+                public static final String EXECUTE_WEBHOOK_WITH_WAIT = "/webhooks/{webhook.id}/{webhook.token}?wait=true";
             }
         }
 

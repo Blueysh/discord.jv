@@ -1,8 +1,9 @@
 package com.seailz.discordjar.model.webhook;
 
 import com.seailz.discordjar.DiscordJar;
+import com.seailz.discordjar.action.webhook.EditWebhookMessageAction;
+import com.seailz.discordjar.action.webhook.WebhookExecuteAction;
 import com.seailz.discordjar.core.Compilerable;
-import com.seailz.discordjar.model.channel.ForumChannel;
 import com.seailz.discordjar.model.embed.Embed;
 import com.seailz.discordjar.model.message.Attachment;
 import com.seailz.discordjar.model.message.Message;
@@ -83,29 +84,8 @@ public record IncomingWebhook(
      * @param avatarUrlOverride An avatar override URL to use when sending the message. The Webhook remains unaffected. Can be skipped by setting to {@code null}.
      * @param threadName The name of the Thread that will be created with this message. Requires the Webhook channel to be a Forum channel. Can be skipped by setting to {@code null}.
      */
-    public void execute(String content, List<Embed> embeds, List<Attachment> attachments, String usernameOverride, String avatarUrlOverride, String threadName){
-        JSONObject body = new JSONObject();
-        if (content != null) body.put("content", content);
-        if (embeds != null) body.put("embeds", new JSONArray(embeds));
-        if (attachments != null) body.put("attachments", new JSONArray(attachments));
-        if (usernameOverride != null) body.put("username", usernameOverride);
-        if (avatarUrlOverride != null) body.put("avatar_url", avatarUrlOverride);
-        if (threadName != null) {
-            body.put("thread_name", threadName);
-        }
-        DiscordRequest request = new DiscordRequest(
-                body,
-                new HashMap<>(),
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK.replace("{guild.id}", guildId().id()).replace("{channel.id}", channelId().id()).replace("{webhook.id}", id.id()).replace("{webhook.token}", token),
-                discordJar,
-                URLS.POST.GUILDS.CHANNELS.EXECUTE_WEBHOOK,
-                RequestMethod.POST
-        );
-        try {
-            request.invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+    public WebhookExecuteAction execute(String content, List<Embed> embeds, List<Attachment> attachments, String usernameOverride, String avatarUrlOverride, String threadName){
+        return new WebhookExecuteAction(content, embeds, attachments, usernameOverride, avatarUrlOverride, threadName, discordJar, channelId, id, guildId, token);
     }
 
     /**
@@ -117,29 +97,8 @@ public record IncomingWebhook(
      * @param avatarUrlOverride An avatar override URL to use when sending the message. The Webhook remains unaffected. Can be skipped by setting to {@code null}.
      * @param threadName The name of the Thread that will be created with this message. Requires the Webhook channel to be a Forum channel. Can be skipped by setting to {@code null}.
      */
-    public void editMessage(String messageId, String content, List<Embed> embeds, List<Attachment> attachments, String usernameOverride, String avatarUrlOverride, String threadName){
-        JSONObject body = new JSONObject();
-        if (content != null) body.put("content", content);
-        if (embeds != null) body.put("embeds", new JSONArray(embeds));
-        if (attachments != null) body.put("attachments", new JSONArray(attachments));
-        if (usernameOverride != null) body.put("username", usernameOverride);
-        if (avatarUrlOverride != null) body.put("avatar_url", avatarUrlOverride);
-        if (threadName != null) {
-            body.put("thread_name", threadName);
-        }
-        DiscordRequest request = new DiscordRequest(
-                body,
-                new HashMap<>(),
-                URLS.PATCH.WEBHOOK.EDIT_WEBHOOK_MESSAGE.replace("{webhook.id}", id.id()).replace("{webhook.token}", token).replace("{message.id}", messageId),
-                discordJar,
-                URLS.PATCH.WEBHOOK.EDIT_WEBHOOK_MESSAGE,
-                RequestMethod.PATCH
-        );
-        try {
-            request.invoke();
-        } catch (DiscordRequest.UnhandledDiscordAPIErrorException e) {
-            throw new DiscordRequest.DiscordAPIErrorException(e);
-        }
+    public EditWebhookMessageAction editMessage(String messageId, String content, List<Embed> embeds, List<Attachment> attachments, String usernameOverride, String avatarUrlOverride, String threadName){
+        return new EditWebhookMessageAction(messageId, content, embeds, attachments, usernameOverride, avatarUrlOverride, threadName, id, token, discordJar);
     }
 
     /**
@@ -170,7 +129,7 @@ public record IncomingWebhook(
      */
     public void deleteMessage(String messageId) {
         try {
-            DiscordResponse res = new DiscordRequest(
+            new DiscordRequest(
                     new JSONObject(),
                     new HashMap<>(),
                     URLS.DELETE.CHANNEL.DELETE_WEBHOOK_MESSAGE.replace("{webhook.id}", id.id()).replace("{webhook.token}", token).replace("{message.id}", messageId),
